@@ -36,6 +36,10 @@ spec:
       containers:
       - name: catalogue
         image: amer9722/catalogue:v1
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: catalogue
         ports:
         - name: liveness-port
           containerPort: 8080
@@ -46,10 +50,6 @@ spec:
           limits:
             cpu: "100m"
             memory: "128Mi"
-        imagePullPolicy: Always
-        envFrom:
-        - configMapRef:
-            name: catalogue
         readinessProbe:
           httpGet:
             path: /health
@@ -62,8 +62,6 @@ spec:
             port: liveness-port
           failureThreshold: 1
           periodSeconds: 15
-
-# service for connecting catalogue to catalogue
 ---
 apiVersion: v1
 kind: Service
@@ -80,8 +78,6 @@ spec:
       port: 8080 # service port
       targetPort: 8080 # container port
 ---
-#Horizontal pod Autoscaler (HPA)
-
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -104,4 +100,4 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 5  # 70 is the real PROJECTS value
+        averageUtilization: 5 # 70 is the real value

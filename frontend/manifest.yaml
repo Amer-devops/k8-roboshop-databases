@@ -34,8 +34,8 @@ data:
         include /etc/nginx/conf.d/*.conf;
 
         server {
-            listen       80;
-            listen       [::]:80;
+            listen       8080;
+            listen       [::]:8080;
             server_name  _;
             root         /usr/share/nginx/html;
 
@@ -96,11 +96,12 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: joindevops/frontend:v1
+        image: amer9722/frontend:v1
         imagePullPolicy: Always
+        
         ports:
         - name: liveness-port
-          containerPort: 80
+          containerPort: 8080
         resources:
           requests:
             cpu: "100m"
@@ -110,24 +111,20 @@ spec:
             memory: "128Mi"
         readinessProbe:
           httpGet:
-            path: /health
+            path: /
             port: liveness-port
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          failureThreshold: 3
-
+          failureThreshold: 1
+          periodSeconds: 15
         livenessProbe:
           httpGet:
-            path: /health
+            path: /
             port: liveness-port
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          failureThreshold: 3
-
+          failureThreshold: 1
+          periodSeconds: 15
         volumeMounts:
-        - name: nginx-config
-          mountPath: /etc/nginx/nginx.conf
-          subPath: nginx.conf
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
       volumes:
       - name: nginx-config
         configMap:
@@ -147,25 +144,22 @@ spec:
   ports:
     - protocol: TCP
       port: 80 # service port
-      targetPort: 80 # container port
-
+      targetPort: 8080 # container port
 ---
-#Horizontal pod Autoscaler (HPA)
-
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: catalogue
+  name: frontend
   namespace: roboshop
   labels:
     project: roboshop
-    component: catalogue
-    tier: backend
+    component: frontend
+    tier: frontend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: catalogue
+    name: frontend
   minReplicas: 1
   maxReplicas: 10
   metrics:
@@ -174,4 +168,4 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 5  # 70 is the real PROJECTS value
+        averageUtilization: 5 # 70 is the real value
