@@ -17,7 +17,7 @@ metadata:
   name: mysql
   namespace: roboshop
 spec:
-  clusterIP: none
+  clusterIP: None
   selector:
     project: roboshop
     component: mysql
