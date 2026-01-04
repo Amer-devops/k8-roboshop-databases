@@ -14,7 +14,7 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-headless
+  name: mysql
   namespace: roboshop
 spec:
   clusterIP: None
@@ -54,7 +54,7 @@ spec:
         image: amer9722/mysql:v1
         volumeMounts:
         - name: mysql
-          mountPath: /var/lib/mysql
+          mountPath: /data/db
         - name: mysql-config
           mountPath: /etc/mysql/conf.d/my.cnf
           subPath: my.cnf
